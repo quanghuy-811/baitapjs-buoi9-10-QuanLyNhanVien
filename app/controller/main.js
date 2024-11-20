@@ -28,6 +28,9 @@ const getValueForm = () => {
     gioLam
   );
 
+  newUer.tinhTongLuong();
+  newUer.xepLoaiNV();
+
   return newUer;
 };
 
@@ -36,15 +39,15 @@ const getValueForm = () => {
 const renderTable = (paramArr) => {
   let contentTable = "";
   paramArr.map((item) => {
-    const { tk, hoTen, email, ngayLam, chucVu, gioLam } = item;
+    const { tk, hoTen, email, ngayLam, chucVu, tongLuong, loaiNv } = item;
     let trFood = `<tr>
       <th>${tk}</th>
       <th>${hoTen}</th>
       <th>${email}</th>
       <th>${ngayLam} </th>
       <th>${chucVu} </th>
-      <th> </th>
-      <th>${gioLam} </th>
+      <th>${tongLuong} </th>
+      <th>${loaiNv} </th>
       <th>
 
       <button 
@@ -142,10 +145,14 @@ window.showDetail = showDetail;
 getEle("#btnCapNhat").onclick = () => {
   let dataUpdate = getValueForm();
 
-  manageService.update(dataUpdate);
-  $("#myModal").modal("hide");
-  setLocalStorage();
-  renderTable(manageService.arr);
+  let isValid = valid(dataUpdate);
+
+  if (isValid) {
+    manageService.update(dataUpdate);
+    $("#myModal").modal("hide");
+    setLocalStorage();
+    renderTable(manageService.arr);
+  }
 };
 
 // Xóa
@@ -156,3 +163,25 @@ const deleteUser = (paramDel) => {
 };
 
 window.deleteUser = deleteUser;
+
+// tìm loại nhân viên
+
+getEle("#btnTimNV").onclick = () => {
+  let valueSelect = getEle("#searchName").value;
+
+  if (valueSelect === "Loại nhân viên") {
+    alert("Hãy chọn loại nhân viên");
+  } else {
+    let filterLoaiNv = manageService.arr.filter((item) => {
+      return item.loaiNv === valueSelect;
+    });
+    if (filterLoaiNv.length > 0) {
+      renderTable(filterLoaiNv);
+      getEle("#searchName").selectedIndex = 0; // select trở về giá trị mặc định khi tìm thành công
+    } else {
+      getEle(
+        "table #tableDanhSach"
+      ).innerHTML = `<tr><td colspan='8' class='text-center'>Không tìm thấy User nào</td></tr>`;
+    }
+  }
+};
